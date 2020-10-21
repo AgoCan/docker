@@ -1,0 +1,25 @@
+FROM centos:7.6.1810
+RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup \
+    && curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \
+    && curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
+    && yum install -y nginx wget\
+    && mv /etc/localtime /etc/localtime.bak  \
+    && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && yum clean all
+
+WORKDIR /var/www/
+
+ENV PATH=$PATH:/usr/local/node/bin LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+RUN \
+    wget https://nodejs.org/dist/latest-v8.x/node-v8.17.0-linux-x64.tar.gz \
+    && tar xf node-v8.17.0-linux-x64.tar.gz \
+    && mv node-v8.17.0-linux-x64 /usr/local/node \
+    && rm -rf node-v8.17.0-linux-x64.tar.gz \
+    && npm install -g yarn pm2 \
+    && yarn config set sass_binary_site http://cdn.npm.taobao.org/dist/node-sass -g \
+    && yarn config set registry https://registry.npm.taobao.org -g \
+    && yum clean all
+
+
+
+CMD ["nginx"]

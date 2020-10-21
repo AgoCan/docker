@@ -1,0 +1,21 @@
+FROM python:2.7.18-alpine3.11
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8' TIMEZONE=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+    && echo $TIMEZONE > /etc/timezone
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+    && apk update \
+    && apk --no-cache add --virtual .build-deps git libc6-compat curl curl-dev gcc g++ make automake autoconf mysql-dev \
+    libffi-dev linux-headers libc-dev pcre-dev\
+    && mkdir -p ~/.pip \
+    && echo [global] >> ~/.pip/pip.conf \
+    && echo index-url = https://mirrors.aliyun.com/pypi/simple/ >> ~/.pip/pip.conf \
+    && echo [install] >> ~/.pip/pip.conf \
+    && echo trusted-host=mirrors.aliyun.com >> ~/.pip/pip.conf \
+    && sed '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h -i.bkp
+
+RUN apk --no-cache add nginx \
+    && mkdir -p /run/nginx \
+    && chown -R nginx.nginx /run/nginx
+
+# RUN apk --no-cache add zlib-dev bzip2-dev \
+#     && pip --no-cache-dir install zeroc-ice

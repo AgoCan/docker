@@ -1,0 +1,29 @@
+FROM centos:7.6.1810
+
+ENV LANG='en_US.UTF-8' \
+    LANGUAGE='en_US:en' \
+    LC_ALL='en_US.UTF-8' \
+    DJANGO_SETTINGS_MODULE="settings" \
+    TIMEZONE=Asia/Shanghai
+
+RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup \
+    && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo \
+    && curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
+    && yum install -y mysql-devel gcc python python-devel python-pip cronie bzip2 bzip2-devel \
+    openssl openssl-devel gcc gcc-c++ git nginx \
+    && yum install sshpass openssh-clients -y \
+    && yum clean all
+# 可以使用sed的方式修改，主要是加了daemon off;和user root
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+    && echo $TIMEZONE > /etc/timezone
+
+RUN mkdir -p ~/.pip \
+    && echo [global] >> ~/.pip/pip.conf \
+    && echo index-url = https://mirrors.aliyun.com/pypi/simple/ >> ~/.pip/pip.conf \
+    && echo [install] >> ~/.pip/pip.conf \
+    && echo trusted-host=mirrors.aliyun.com >> ~/.pip/pip.conf \
+    && pip --no-cache-dir install --upgrade pip \
+    && pip --no-cache-dir install --upgrade setuptools
+# RUN pip --no-cache-dir install zeroc-ice
