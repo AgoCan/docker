@@ -8,3 +8,5 @@
 * [私有化仓库](registry/README.md)
 * [dockerfile](use-dockerfile/README.md)
 * [docker-compose](compose/README.md)
+* [实践](practice/README.md)
+  - [docker多平台镜像构建](multi-platform.md)
